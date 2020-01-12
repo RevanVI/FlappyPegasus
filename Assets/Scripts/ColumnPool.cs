@@ -4,7 +4,7 @@ using System.Collections;
 public class ColumnPool : MonoBehaviour
 {
     public static ColumnPool instanceC;
-    public GameObject[] bonusPrefab = new GameObject[3];
+    public GameObject[] bonusPrefab = new GameObject[2];
     public GameObject columnPrefab;                                 //The column game object.
     public int columnPoolSize = 8;                                  //How many columns to keep on standby.
     public float spawnRate = 4f;                                    //How quickly columns spawn.
@@ -41,8 +41,10 @@ public class ColumnPool : MonoBehaviour
         for (int i = 0; i < columnPoolSize; i++)
         {
             //...and create the individual columns.
-            columns[i] = (GameObject)Instantiate(columnPrefab, objectPoolPosition, Quaternion.identity);
+            columns[i] = Instantiate(columnPrefab, objectPoolPosition, Quaternion.identity);
         }
+        //FindObjectOfType<Bird>().OnSpeed += SpeedTimeStart;
+        //FindObjectOfType<Bird>().OnStopScroling += OnStopScroling;
     }
 
 
@@ -64,8 +66,8 @@ public class ColumnPool : MonoBehaviour
             columns[currentColumn].transform.position = new Vector2(spawnXPosition, spawnYPosition);
 
             int probability = Random.Range(1, 101); //вероятность создания бонуса
-            if (probability>=80)
-            CreateBonus(new Vector2(spawnXPosition, spawnYPosition));
+            if (probability<=80)
+                CreateBonus(new Vector2(spawnXPosition, spawnYPosition));
 
             //Increase the value of currentColumn. If the new size is too big, set it back to zero
             currentColumn++;
@@ -82,5 +84,25 @@ public class ColumnPool : MonoBehaviour
         // создание бонуса 
         Debug.Log("создание бонуса");
         Instantiate(bonusPrefab[Random.Range(0, 3)], new Vector2(positionColums.x, positionColums.y + 2f), Quaternion.identity);
+    }
+
+    public void SpeedActivate()
+    {
+        for (int i = 0; i < columns.Length; ++i)
+        {
+            columns[i].gameObject.transform.Find("ColumnSpriteTop").gameObject.SetActive(false);
+            columns[i].gameObject.transform.Find("ColumnSpriteDown").gameObject.SetActive(false);
+        }
+        spawnRate = 1f; //speedup spawning
+    }
+
+    public void SpeedDeactivate()
+    {
+        spawnRate = 4f; //return spawn rate to default
+        for (int i = 0; i < columns.Length; ++i)
+        {
+            columns[i].gameObject.transform.Find("ColumnSpriteTop").gameObject.SetActive(true);
+            columns[i].gameObject.transform.Find("ColumnSpriteDown").gameObject.SetActive(true);
+        }
     }
 }

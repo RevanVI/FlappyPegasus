@@ -5,15 +5,17 @@ using UnityEngine;
 public class ScrollingObject : MonoBehaviour {
    
     private   Rigidbody2D rb2d;
-
-   
     // Use this for initialization
     void Start ()
     {
-        FindObjectOfType<Bird>().OnSpeed += SpeedTime;
-        FindObjectOfType<Bird>().OnStopScroling += OnStopScroling;
+        FindObjectOfType<Bird>().OnSpeedActivate += SpeedActivate;
+        FindObjectOfType<Bird>().OnSpeedDeactivate += SpeedDeactivate;
+        //FindObjectOfType<Bird>().OnStopScroling += OnStopScroling;
         rb2d = gameObject.GetComponent<Rigidbody2D>();
-        rb2d.velocity = new Vector2 (GameControl.instance.scrollSpeed, 0);
+        if (GameControl.instance.isSpeeded)
+            rb2d.velocity = new Vector2(-12, 0);
+        else
+            rb2d.velocity = new Vector2 (GameControl.instance.scrollSpeed*2, 0);
 	}
 	
 	// Update is called once per frame
@@ -24,22 +26,24 @@ public class ScrollingObject : MonoBehaviour {
             rb2d.velocity = Vector2.zero;
         }
 	}
-    void SpeedTime(GameObject sprite)
+    void SpeedActivate(int p)
     {
-            StartCoroutine(Speed(sprite));
+        if (this != null)
+        {
+            Debug.Log("Object speedup " + gameObject.name);
+            rb2d.velocity = new Vector2(-12, 0); //speedup scrolling
+        }
     }
-    IEnumerator Speed(GameObject sprite)
+
+    void SpeedDeactivate(int p)
     {
-        
-        rb2d.velocity = new Vector2(-12, 0);
-        ColumnPool.instanceC.spawnRate = 1f;
-        yield return new WaitForSeconds(2.5f);
-        ColumnPool.instanceC.spawnRate = 4f;
-        rb2d.velocity = new Vector2(GameControl.instance.scrollSpeed, 0);
-        GameObject.FindObjectOfType<Bird>().isSpeed = false;
-        sprite.SetActive(false);
-        StopCoroutine("Speed");
+        if (this != null)
+        {
+            Debug.Log("Object stop speedup " + gameObject.name);
+            rb2d.velocity = new Vector2(GameControl.instance.scrollSpeed * 2, 0); //return scrolling speed to default
+        }
     }
+
     public void OnStopScroling(int speed=0)
     {
         StartCoroutine(StopScrol());
@@ -49,6 +53,6 @@ public class ScrollingObject : MonoBehaviour {
         rb2d.velocity = new Vector2(0, 0);
         yield return new WaitForSeconds(1f);
         StopCoroutine("StopScrol");
-        rb2d.velocity = new Vector2(GameControl.instance.scrollSpeed, 0);
+        rb2d.velocity = new Vector2(GameControl.instance.scrollSpeed*2, 0);
     }
 }

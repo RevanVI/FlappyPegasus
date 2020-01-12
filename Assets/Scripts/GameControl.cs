@@ -9,11 +9,13 @@ public class GameControl : MonoBehaviour {
     public static GameControl instance;
     public Text scoreText;
     public GameObject gameOverText;
+    private Bird birdRef;
     public bool gameOver = false;
+    public bool isSpeeded = false;
     public float scrollSpeed = -1.5f;
     private int score = 0;
 
-        void Awake ()
+    void Awake ()
     {
         if (instance == null)
         {
@@ -24,8 +26,16 @@ public class GameControl : MonoBehaviour {
             Destroy(gameObject);
         }
 	}
+    private void Start()
+    {
+        //string str = GameObject.Find("SavePoint").gameObject.GetComponent<Text>().text;
+        score = SavePoint.instance.score;
+        scoreText.text = "Score: " + score;
 
-	void Update ()
+        //score = int.Parse(str); //(int)char.GetNumericValue(str[str.Length-1]);
+        birdRef = FindObjectOfType<Bird>();
+    }
+    void Update ()
     {
 		//if (gameOver == true && Input.GetKeyDown(KeyCode.Space) &&)
   //      {
@@ -43,9 +53,17 @@ public class GameControl : MonoBehaviour {
 
     public void BirdDied()
     {
-
-        GameObject.FindObjectOfType<GameUi>().OnGameOver();
-        gameOver = true;
+        if (birdRef.isReLife)
+        {
+            birdRef.isReLife = false;
+            SavePoint.instance.score = score;
+            SceneManager.LoadScene("Game");
+        }
+        else
+        {
+            GameObject.FindObjectOfType<GameUi>().OnGameOver();
+            gameOver = true;
+        }
     }
 }
  

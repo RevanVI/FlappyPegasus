@@ -19,6 +19,7 @@ public class Bonus : MonoBehaviour
             GameObject.FindObjectOfType<Bird>().OnBonus(gameObject.tag);
 
             gameObject.SetActive(false);
+            Destroy(gameObject);
         }
     }
 

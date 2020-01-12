@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -8,21 +10,22 @@ public class GameUi : MonoBehaviour
 {
     public GameObject GameOver;
     public Image fadePlane;
-    public AudioClip defeatSound;
+    public InputField field;
     // Start is called before the first frame update
     void Start()
     {
         
     }
-
-    // Update is called once per frame
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            SaveRecord();
+        }
+    }
     public void OnGameOver()
     {
         GameOver.SetActive(true);
-        AudioSource aSource = GameObject.Find("Music").GetComponent<AudioSource>();
-        aSource.clip = defeatSound;
-        aSource.volume = 0.5f;
-        aSource.Play();
         StartCoroutine(Fade(Color.clear, Color.black, 1));
     }
     IEnumerator Fade(Color from, Color to, float time)
@@ -39,10 +42,38 @@ public class GameUi : MonoBehaviour
     }
     public void Game()
     {
+        SaveRecord();
         SceneManager.LoadScene("Game");
     }
     public void StartMenu()
     {
+        SaveRecord();
         SceneManager.LoadScene("Start");
     }
+    void SaveRecord()
+    {
+        //form user name
+        string nameStr = GameObject.Find("NameText").gameObject.GetComponent<Text>().text;
+        string scoreStr = GameObject.Find("ScoreText").gameObject.GetComponent<Text>().text.Split(' ')[1];
+        int len = 0;
+        bool charCheck = true;
+        while (len < 15 && charCheck && len < nameStr.Length)
+        {
+            if (nameStr[len].Equals(","))
+            {
+                charCheck = false;
+            }
+            else
+                ++len;
+        }
+        if (len != 0)
+        {
+            string[] newRecordItem = new string[2] { nameStr.Substring(0, len), scoreStr };
+            List<string[]> data = DataHandler.readData();
+            DataHandler.insertNewItem(ref data, newRecordItem);
+            DataHandler.writeData(ref data);
+        }
+        SavePoint.instance.score = 0;
+    }
+
 }
